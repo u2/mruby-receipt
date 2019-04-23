@@ -12,11 +12,11 @@ assert("test_receipt") do
   # deserialization
   dr = Receipt.deserialize r_s, {}
 
-  # assert_equal r, dr
+  assert_equal r, dr
 
-  # data = RLP.encode(r)
+  data = RLP.encode(r)
 
-  # x = RLP.decode(data, sedes: Receipt)
+  x = RLP.decode(data, { sedes: Receipt })
 
-  # assert_equal r, x
+  assert_equal r, x
 end
