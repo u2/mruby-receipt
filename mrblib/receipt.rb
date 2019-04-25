@@ -262,6 +262,10 @@ module Ethereum
     def gas_used=(v)
       _set_field(:gas_used, v)
     end
+
+    def bloom
+      @bloom
+    end
   
     def bloom=(v)
       _set_field(:bloom, v)
@@ -304,13 +308,13 @@ module Ethereum
       h = normalize_args args
       super(h)
 
-      raise ArgumentError, "Invalid bloom filter" if h[:bloom] && h[:bloom] != self.bloom
+      # raise ArgumentError, "Invalid bloom filter h[:bloom] #{h[:bloom]}, self.bloom #{self.bloom}" if h[:bloom] && h[:bloom] != self.bloom
     end
 
-    def bloom
-      bloomables = logs.map {|l| l.bloomables }
-      Bloom.from_array bloomables.flatten
-    end
+    # def bloom
+    #   bloomables = logs.map {|l| l.bloomables }
+    #   Bloom.from_array bloomables.flatten
+    # end
 
     private
 

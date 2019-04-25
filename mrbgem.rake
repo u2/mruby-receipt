@@ -21,9 +21,8 @@ MRuby::Gem::Specification.new('mruby-receipt') do |spec|
   spec.add_dependency('mruby-kernel-ext', :core => 'mruby-kernel-ext')
   spec.add_dependency('mruby-class-ext', :core => 'mruby-class-ext')
   spec.add_dependency('mruby-compiler', :core => 'mruby-compiler')
+  spec.add_dependency('mruby-print', :core => 'mruby-print')
 
-  # TODO
-  spec.add_dependency('mruby-bignum', :core => 'mruby-bignum')
   spec.add_dependency('mruby-metaprog', :core => 'metaprog')
   spec.add_dependency('mruby-rlp', :core => 'mruby-rlp')
   spec.add_dependency('mruby-sha3', :core => 'mruby-sha3')
