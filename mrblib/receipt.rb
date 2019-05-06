@@ -5,17 +5,6 @@ module Ethereum
     BYTE_ZERO  = "\x00".freeze
     BYTE_ONE   = "\x01".freeze
 
-    TT32   = 2**32
-    TT40   = 2**40
-    TT160  = 2**160
-    TT256  = 2**256
-    TT64M1 = 2**64 - 1
-
-    UINT_MAX = 2**256 - 1
-    UINT_MIN = 0
-    INT_MAX  = 2**255 - 1
-    INT_MIN  = -2**255
-
     HASH_ZERO = ("\x00"*32).freeze
 
     PUBKEY_ZERO = ("\x00"*32).freeze
@@ -76,6 +65,10 @@ module Ethereum
       BigEndianInt.new(32)
     end
 
+    def int64
+      BigEndianInt.new(64)
+    end
+
     def int256
       BigEndianInt.new(256)
     end
@@ -84,9 +77,9 @@ module Ethereum
       Binary.fixed_length(32)
     end
 
-    def trie_root
-      Binary.fixed_length(32, allow_empty: true)
-    end
+    # def trie_root
+    #   Binary.fixed_length(32, allow_empty: true)
+    # end
 
     def big_endian_int
       RLP::Sedes.big_endian_int
@@ -182,7 +175,7 @@ module Ethereum
 
     set_serializable_fields(
       address: Sedes.address,
-      topics: RLP::Sedes::CountableList.new(Sedes.int32),
+      topics: RLP::Sedes::CountableList.new(Sedes.hash32),
       data: Sedes.binary
     )
 
@@ -246,29 +239,45 @@ module Ethereum
     extend Sedes
 
     set_serializable_fields(
-      # state_root: trie_root
-      gas_used: big_endian_int,
-      bloom: int256,
-      logs: RLP::Sedes::CountableList.new(Log),
-      error: RLP::Sedes::CountableList.new(Integer),
-      account_nonce: big_endian_int,
+      state_root: hash32,
       transaction_hash: hash32,
+      quota_used: big_endian_int,
+      logs_bloom: int256,
+      logs: RLP::Sedes::CountableList.new(Log),
+      receipt_error: binary,
+      contract_address: RLP::Sedes::List.new([]),
     )
 
-    def gas_used
-      @gas_used
+    def state_root
+      @state_root
     end
   
-    def gas_used=(v)
-      _set_field(:gas_used, v)
+    def state_root=(v)
+      _set_field(:state_root, v)
     end
 
-    def bloom
-      @bloom
+    def transaction_hash
+      @transaction_hash
     end
   
-    def bloom=(v)
-      _set_field(:bloom, v)
+    def transaction_hash=(v)
+      _set_field(:transaction_hash, v)
+    end
+
+    def quota_used
+      @quota_used
+    end
+  
+    def quota_used=(v)
+      _set_field(:quota_used, v)
+    end
+
+    def logs_bloom
+      @logs_bloom
+    end
+  
+    def logs_bloom=(v)
+      _set_field(:logs_bloom, v)
     end
 
     def logs
@@ -279,28 +288,20 @@ module Ethereum
       _set_field(:logs, v)
     end
 
-    def error
-      @error
+    def receipt_error
+      @receipt_error
     end
   
-    def error=(v)
-      _set_field(:error, v)
-    end
-
-    def account_nonce
-      @account_nonce
+    def receipt_error=(v)
+      _set_field(:receipt_error, v)
     end
   
-    def account_nonce=(v)
-      _set_field(:account_nonce, v)
-    end
-
-    def transaction_hash
-      @transaction_hash
+    def contract_address
+      @contract_address
     end
   
-    def transaction_hash=(v)
-      _set_field(:transaction_hash, v)
+    def contract_address=(v)
+      _set_field(:contract_address, v)
     end
 
     # initialize(state_root, gas_used, logs, bloom: nil)
@@ -320,7 +321,7 @@ module Ethereum
 
     def normalize_args(args)
       options = args.last.is_a?(Hash) ? args.pop : {}
-      field_set = %i(gas_used bloom logs error account_nonce transaction_hash) # different order than serializable fields
+      field_set = %i(state_root transaction_hash quota_used logs_bloom logs receipt_error contract_address) # different order than serializable fields
 
       h = {}
       fields = field_set[0,args.size]
